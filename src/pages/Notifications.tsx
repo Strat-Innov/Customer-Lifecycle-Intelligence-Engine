@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Save } from "lucide-react";
 import { useAppData } from "@/context/AppDataContext";
-import { formatPercent, formatDateTime } from "@/lib/utils";
+import { formatPercent, formatDateTime, milestoneBadgeClass } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,7 @@ export function Notifications() {
                         </Link>
                       </td>
                       <td>
-                        <span className={n.milestone === "10% Payment" ? "milestone-badge-10" : "milestone-badge-creq"}>
+                        <span className={milestoneBadgeClass(n.milestone)}>
                           {n.milestone}
                         </span>
                       </td>

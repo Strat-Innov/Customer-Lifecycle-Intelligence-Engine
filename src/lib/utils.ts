@@ -29,6 +29,12 @@ export function formatDateTime(iso: string): string {
   return d.toLocaleString("en-PH", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
+export function milestoneBadgeClass(milestone: string): string {
+  if (milestone === "10% Payment") return "milestone-badge-10";
+  if (milestone === "CREQ") return "milestone-badge-creq";
+  return "milestone-badge-forecast";
+}
+
 export function isoWeekRange(dateStr: string): { start: string; end: string } {
   const d = new Date(dateStr);
   const day = (d.getDay() + 6) % 7; // Mon=0

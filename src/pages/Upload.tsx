@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { UploadCloud, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import { useAppData } from "@/context/AppDataContext";
-import { formatPercent } from "@/lib/utils";
+import { formatPercent, milestoneBadgeClass } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import type { Notification } from "@/types";
 
@@ -18,7 +18,8 @@ export function Upload() {
       setError(null);
       setResult(null);
       try {
-        const text = await file.text();
+        const buffer = await file.arrayBuffer();
+        const text = new TextDecoder("windows-1252").decode(buffer);
         const res = uploadCsv(text);
         setResult(res);
       } catch (e) {
@@ -105,7 +106,7 @@ export function Upload() {
                   >
                     <span className="font-medium">{n.client_name}</span>
                     <div className="flex items-center gap-3">
-                      <span className={n.milestone === "10% Payment" ? "milestone-badge-10" : "milestone-badge-creq"}>
+                      <span className={milestoneBadgeClass(n.milestone)}>
                         {n.milestone}
                       </span>
                       <span className="font-mono text-muted-foreground">{formatPercent(n.payment_percentage)}</span>

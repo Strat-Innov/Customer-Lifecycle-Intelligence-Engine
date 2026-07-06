@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Users, TrendingUp, Percent, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import { useAppData } from "@/context/AppDataContext";
 import { groupForecastByType } from "@/lib/forecast";
-import { formatPercent, formatDateTime } from "@/lib/utils";
+import { formatPercent, formatDateTime, milestoneBadgeClass } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -39,13 +39,20 @@ export function Dashboard() {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           Forecast Summary
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ForecastCard
             title="Approaching 10%"
             count={forecast.approaching10.length}
             className="forecast-approaching"
             icon={TrendingUp}
             iconClass="text-warning"
+          />
+          <ForecastCard
+            title="Projected 10% (30d)"
+            count={forecast.projected10Next30.length}
+            className="forecast-approaching"
+            icon={TrendingUp}
+            iconClass="text-primary"
           />
           <ForecastCard
             title="Near CREQ"
@@ -99,7 +106,7 @@ export function Dashboard() {
                         </Link>
                       </td>
                       <td>
-                        <span className={n.milestone === "10% Payment" ? "milestone-badge-10" : "milestone-badge-creq"}>
+                        <span className={milestoneBadgeClass(n.milestone)}>
                           {n.milestone}
                         </span>
                       </td>

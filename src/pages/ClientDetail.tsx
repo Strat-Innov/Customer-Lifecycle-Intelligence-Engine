@@ -11,7 +11,7 @@ import {
   ReferenceLine,
 } from "recharts";
 import { useAppData } from "@/context/AppDataContext";
-import { formatCurrency, formatPercent, formatDate, formatDateTime } from "@/lib/utils";
+import { formatCurrency, formatPercent, formatDate, formatDateTime, milestoneBadgeClass } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export function ClientDetail() {
@@ -106,6 +106,90 @@ export function ClientDetail() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Contracts ({client.contracts.length})</CardTitle>
+          <CardDescription>
+            One row per contract on file. Payment % is per-contract, combined into the overview above.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Contract Number</th>
+                  <th>Project</th>
+                  <th>Credited</th>
+                  <th>Contract Value</th>
+                  <th>Payment %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {client.contracts.map((c) => (
+                  <tr key={c.contract_number}>
+                    <td className="font-mono text-xs">{c.contract_number}</td>
+                    <td>{c.project_name || c.project_code}</td>
+                    <td className="text-muted-foreground">{formatDate(c.credit_date)}</td>
+                    <td className="font-mono">{formatCurrency(c.contract_value)}</td>
+                    <td className="font-mono">{formatPercent(c.payment_percentage)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {client.contracts.map((contract) => {
+        const contractHistory = data.contract_payment_history
+          .filter((h) => h.contract_number === contract.contract_number)
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+          .map((h) => ({ date: formatDate(h.date), pct: Number(h.payment_percentage.toFixed(2)) }));
+
+        return (
+          <Card key={contract.contract_number}>
+            <CardHeader>
+              <CardTitle>{contract.project_name || contract.project_code}</CardTitle>
+              <CardDescription>
+                Contract {contract.contract_number} · Credited {formatDate(contract.credit_date)}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={contractHistory} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                      tickFormatter={(v) => `${v}%`}
+                    />
+                    <ReferenceLine y={10} stroke="hsl(var(--warning))" strokeDasharray="4 4" />
+                    <Tooltip
+                      contentStyle={{
+                        background: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                      formatter={(v) => [`${v}%`, "Payment"]}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="pct"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      dot={{ r: 3, fill: "hsl(var(--primary))" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -149,7 +233,7 @@ export function ClientDetail() {
               <div className="space-y-3">
                 {milestoneHistory.map((n) => (
                   <div key={n.id} className="flex items-center justify-between text-sm border-b border-border/60 pb-3 last:border-0 last:pb-0">
-                    <span className={n.milestone === "10% Payment" ? "milestone-badge-10" : "milestone-badge-creq"}>
+                    <span className={milestoneBadgeClass(n.milestone)}>
                       {n.milestone}
                     </span>
                     <span className="text-muted-foreground text-xs">{formatDateTime(n.timestamp)}</span>

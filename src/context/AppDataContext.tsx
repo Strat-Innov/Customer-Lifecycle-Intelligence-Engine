@@ -3,6 +3,7 @@ import type { AppData, Notification } from "@/types";
 import { loadData, saveData } from "@/lib/storage";
 import { parseSalesReport, processSalesReportRows } from "@/lib/salesReport";
 import { buildDocStatus, detectNewMilestones } from "@/lib/milestones";
+import { generateProjectionAlerts } from "@/lib/forecast";
 import { sendMilestoneAlerts } from "@/lib/email";
 
 interface AppDataContextValue {
@@ -24,10 +25,18 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   function uploadCsv(text: string) {
     const rows = parseSalesReport(text);
     const result = processSalesReportRows(rows, data);
-    setData(result.data);
 
-    if (result.newNotifications.length > 0) {
-      sendMilestoneAlerts(result.newNotifications).then((sent) => {
+    const projection = generateProjectionAlerts(result.data);
+    const combinedData: AppData = {
+      ...result.data,
+      clients: projection.clients,
+      notifications: [...projection.newNotifications, ...result.data.notifications],
+    };
+    setData(combinedData);
+
+    const allNewNotifications = [...result.newNotifications, ...projection.newNotifications];
+    if (allNewNotifications.length > 0) {
+      sendMilestoneAlerts(allNewNotifications).then((sent) => {
         setData((prev) => ({
           ...prev,
           notifications: prev.notifications.map((n) => sent.find((s) => s.id === n.id) ?? n),
@@ -35,7 +44,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    return { customersProcessed: result.customersProcessed, newNotifications: result.newNotifications };
+    return { customersProcessed: result.customersProcessed, newNotifications: allNewNotifications };
   }
 
   function setAlertEmail(email: string) {
@@ -65,6 +74,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       timestamp: today,
       email_sent: false,
       sent_to: data.settings.alert_email,
+      kind: "milestone" as const,
     }));
 
     setData((prev) => ({

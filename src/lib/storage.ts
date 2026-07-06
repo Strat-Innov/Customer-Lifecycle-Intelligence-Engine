@@ -5,6 +5,7 @@ const STORAGE_KEY = "filinvest_milestone_tracker_data_v1";
 const EMPTY_DATA: AppData = {
   clients: [],
   payment_history: [],
+  contract_payment_history: [],
   notifications: [],
   settings: { alert_email: "joseph.bagadiong@filinvestcity.com" },
 };

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { TrendingUp, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useAppData } from "@/context/AppDataContext";
-import { groupForecastByType } from "@/lib/forecast";
+import { groupForecastByType, daysUntilTenPercent } from "@/lib/forecast";
 import { formatPercent, formatCurrency } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import type { Client } from "@/types";
@@ -29,6 +29,24 @@ export function Forecast() {
         clients={forecast.approaching10}
         emptyText="No clients currently approaching the 10% milestone."
         renderExtra={(c) => <span className="font-mono text-warning">{formatPercent(c.payment_percentage)}</span>}
+      />
+
+      <ForecastSection
+        title="Projected 10% Within 30 Days"
+        description="Based on the real rate of change between upload snapshots — not a fixed threshold, an actual trend projection"
+        icon={TrendingUp}
+        iconClass="text-primary"
+        rowClass="forecast-approaching"
+        clients={forecast.projected10Next30}
+        emptyText="No clients are trending toward 10% within the next month."
+        renderExtra={(c) => {
+          const days = daysUntilTenPercent(c, data);
+          return (
+            <span className="text-xs text-muted-foreground">
+              ~{days !== null ? Math.max(0, Math.round(days)) : "?"} day(s) at current pace
+            </span>
+          );
+        }}
       />
 
       <ForecastSection

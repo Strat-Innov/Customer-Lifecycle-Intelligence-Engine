@@ -116,6 +116,9 @@
   .milestone-badge-creq {
     @apply inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-semibold text-success;
   }
+  .milestone-badge-forecast {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary;
+  }
 
   /* Forecast section accents */
   .forecast-approaching {

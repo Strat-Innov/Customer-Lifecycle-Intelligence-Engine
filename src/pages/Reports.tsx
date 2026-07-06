@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Download } from "lucide-react";
 import { useAppData } from "@/context/AppDataContext";
-import { formatDate, formatPercent, isoWeekRange } from "@/lib/utils";
+import { formatDate, formatPercent, isoWeekRange, milestoneBadgeClass } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { WeeklyReport } from "@/types";
@@ -85,7 +85,7 @@ export function Reports() {
                         <tr key={n.id}>
                           <td>{n.client_name}</td>
                           <td>
-                            <span className={n.milestone === "10% Payment" ? "milestone-badge-10" : "milestone-badge-creq"}>
+                            <span className={milestoneBadgeClass(n.milestone)}>
                               {n.milestone}
                             </span>
                           </td>
