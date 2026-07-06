@@ -1,18 +1,9 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "recharts";
 import { useAppData } from "@/context/AppDataContext";
 import { formatCurrency, formatPercent, formatDate, formatDateTime, milestoneBadgeClass } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { PaymentTimelineChart } from "@/components/PaymentTimelineChart";
 
 export function ClientDetail() {
   const { id } = useParams<{ id: string }>();
@@ -23,8 +14,7 @@ export function ClientDetail() {
 
   const history = data.payment_history
     .filter((h) => h.client_id === client.id)
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map((h) => ({ date: formatDate(h.date), pct: Number(h.payment_percentage.toFixed(2)) }));
+    .map((h) => ({ date: h.date, pct: h.payment_percentage }));
 
   const milestoneHistory = data.notifications
     .filter((n) => n.client_id === client.id)
@@ -68,41 +58,10 @@ export function ClientDetail() {
       <Card>
         <CardHeader>
           <CardTitle>Payment Timeline</CardTitle>
+          <CardDescription>Combined across all contracts · drag the bar below the chart to zoom into a date range</CardDescription>
         </CardHeader>
         <CardContent>
-          {history.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">No payment history recorded yet.</p>
-          ) : (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={history} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                    tickFormatter={(v) => `${v}%`}
-                  />
-                  <ReferenceLine y={10} stroke="hsl(var(--warning))" strokeDasharray="4 4" />
-                  <Tooltip
-                    contentStyle={{
-                      background: "hsl(var(--popover))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                    formatter={(v) => [`${v}%`, "Payment"]}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="pct"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    dot={{ r: 3, fill: "hsl(var(--primary))" }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+          <PaymentTimelineChart points={history} height={288} />
         </CardContent>
       </Card>
 
@@ -144,8 +103,7 @@ export function ClientDetail() {
       {client.contracts.map((contract) => {
         const contractHistory = data.contract_payment_history
           .filter((h) => h.contract_number === contract.contract_number)
-          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-          .map((h) => ({ date: formatDate(h.date), pct: Number(h.payment_percentage.toFixed(2)) }));
+          .map((h) => ({ date: h.date, pct: h.payment_percentage }));
 
         return (
           <Card key={contract.contract_number}>
@@ -156,35 +114,7 @@ export function ClientDetail() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={contractHistory} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                    <YAxis
-                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                      tickFormatter={(v) => `${v}%`}
-                    />
-                    <ReferenceLine y={10} stroke="hsl(var(--warning))" strokeDasharray="4 4" />
-                    <Tooltip
-                      contentStyle={{
-                        background: "hsl(var(--popover))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 8,
-                        fontSize: 12,
-                      }}
-                      formatter={(v) => [`${v}%`, "Payment"]}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="pct"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={2}
-                      dot={{ r: 3, fill: "hsl(var(--primary))" }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <PaymentTimelineChart points={contractHistory} height={224} />
             </CardContent>
           </Card>
         );
