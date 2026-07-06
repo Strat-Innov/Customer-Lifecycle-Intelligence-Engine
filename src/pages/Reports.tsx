@@ -6,6 +6,14 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import type { WeeklyReport } from "@/types";
 
+function toCsvField(value: string | number | boolean): string {
+  const str = String(value);
+  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
 export function Reports() {
   const { data } = useAppData();
 
@@ -26,8 +34,14 @@ export function Reports() {
 
   function exportReport(report: WeeklyReport) {
     const header = "client_name,milestone,payment_percentage,timestamp,email_sent";
-    const rows = report.milestones.map(
-      (n) => `${n.client_name},${n.milestone},${n.payment_percentage.toFixed(2)},${n.timestamp},${n.email_sent}`
+    const rows = report.milestones.map((n) =>
+      [
+        toCsvField(n.client_name),
+        toCsvField(n.milestone),
+        toCsvField(n.payment_percentage.toFixed(2)),
+        toCsvField(n.timestamp),
+        toCsvField(n.email_sent),
+      ].join(",")
     );
     const csv = [header, ...rows].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
