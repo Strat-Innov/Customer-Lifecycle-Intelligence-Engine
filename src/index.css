@@ -1,0 +1,130 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 26% 7%;
+    --foreground: 210 20% 93%;
+
+    --card: 222 24% 10%;
+    --card-foreground: 210 20% 93%;
+
+    --popover: 222 24% 9%;
+    --popover-foreground: 210 20% 93%;
+
+    --primary: 351 68% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 18% 15%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 222 16% 15%;
+    --muted-foreground: 215 14% 62%;
+
+    --accent: 222 20% 17%;
+    --accent-foreground: 210 20% 93%;
+
+    --success: 152 55% 42%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 26 40% 12%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 16% 19%;
+    --input: 222 16% 19%;
+    --ring: 351 68% 45%;
+
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "Inter", system-ui, sans-serif;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 15% -10%, hsl(351 68% 45% / 0.08), transparent),
+      radial-gradient(ellipse 60% 50% at 100% 0%, hsl(210 60% 45% / 0.05), transparent);
+    background-attachment: fixed;
+  }
+  ::selection {
+    background: hsl(var(--primary) / 0.35);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 8px;
+  }
+  .font-mono, .font-numeric {
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+}
+
+@layer components {
+  /* Glass surface used for cards, panels, sidebar */
+  .glass-card {
+    @apply relative rounded-lg border border-border bg-card/70 shadow-glass;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* Dashboard stat card: glass card + accent top rule */
+  .stat-card {
+    @apply glass-card p-5 flex flex-col gap-2;
+  }
+  .stat-card::before {
+    content: "";
+    @apply absolute inset-x-0 top-0 h-[2px] rounded-t-lg bg-gradient-to-r from-primary via-primary/40 to-transparent;
+  }
+
+  /* Dense data table */
+  .data-table {
+    @apply w-full text-sm border-collapse;
+  }
+  .data-table thead th {
+    @apply text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3 border-b border-border sticky top-0 bg-card/95 backdrop-blur;
+  }
+  .data-table tbody td {
+    @apply px-4 py-3 border-b border-border/60 align-middle;
+  }
+  .data-table tbody tr {
+    @apply transition-colors hover:bg-white/[0.03];
+  }
+
+  /* Milestone badges */
+  .milestone-badge-10 {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-warning/30 bg-warning/10 px-2.5 py-1 text-xs font-semibold text-warning;
+  }
+  .milestone-badge-creq {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-xs font-semibold text-success;
+  }
+
+  /* Forecast section accents */
+  .forecast-approaching {
+    @apply border-l-2 border-warning bg-warning/[0.06];
+  }
+  .forecast-near-creq {
+    @apply border-l-2 border-success bg-success/[0.06];
+  }
+  .forecast-inactive {
+    @apply border-l-2 border-destructive bg-destructive/[0.06];
+  }
+}
