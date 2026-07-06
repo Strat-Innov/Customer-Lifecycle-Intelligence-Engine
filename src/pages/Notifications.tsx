@@ -35,7 +35,7 @@ export function Notifications() {
             <CardTitle>Alert Recipient</CardTitle>
           </div>
           <CardDescription>
-            Milestone alerts are queued to this address. Actual delivery requires enabling Lovable Cloud — v1 only logs and mocks the send.
+            Milestone alerts from CSV uploads are sent to this address via Resend. Seed/sample data is not re-sent.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -92,7 +92,7 @@ export function Notifications() {
                       <td className="text-muted-foreground text-xs">{data.settings.alert_email}</td>
                       <td>
                         <Badge variant={n.email_sent ? "success" : "outline"}>
-                          {n.email_sent ? "Sent (mocked)" : "Queued"}
+                          {n.email_sent ? "Sent" : "Queued"}
                         </Badge>
                       </td>
                     </tr>

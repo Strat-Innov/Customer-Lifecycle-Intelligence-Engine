@@ -100,7 +100,7 @@ export function processCsvRows(rows: CsvRow[], data: AppData): CsvProcessResult 
         milestone,
         payment_percentage,
         timestamp: today,
-        email_sent: true,
+        email_sent: false,
       });
     }
   }

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { AppData, Notification } from "@/types";
 import { loadData, saveData } from "@/lib/storage";
 import { parseCsv, processCsvRows } from "@/lib/csv";
+import { sendMilestoneAlerts } from "@/lib/email";
 
 interface AppDataContextValue {
   data: AppData;
@@ -22,6 +23,16 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     const rows = parseCsv(text);
     const result = processCsvRows(rows, data);
     setData(result.data);
+
+    if (result.newNotifications.length > 0) {
+      sendMilestoneAlerts(result.newNotifications, result.data.settings.alert_email).then((sent) => {
+        setData((prev) => ({
+          ...prev,
+          notifications: prev.notifications.map((n) => sent.find((s) => s.id === n.id) ?? n),
+        }));
+      });
+    }
+
     return { rowsProcessed: result.rowsProcessed, newNotifications: result.newNotifications };
   }
 
