@@ -25,7 +25,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setData(result.data);
 
     if (result.newNotifications.length > 0) {
-      sendMilestoneAlerts(result.newNotifications, result.data.settings.alert_email).then((sent) => {
+      sendMilestoneAlerts(result.newNotifications).then((sent) => {
         setData((prev) => ({
           ...prev,
           notifications: prev.notifications.map((n) => sent.find((s) => s.id === n.id) ?? n),

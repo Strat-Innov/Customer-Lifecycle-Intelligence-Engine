@@ -89,7 +89,7 @@ export function Notifications() {
                       </td>
                       <td className="font-mono">{formatPercent(n.payment_percentage)}</td>
                       <td className="text-muted-foreground">{formatDateTime(n.timestamp)}</td>
-                      <td className="text-muted-foreground text-xs">{data.settings.alert_email}</td>
+                      <td className="text-muted-foreground text-xs">{n.sent_to}</td>
                       <td>
                         <Badge variant={n.email_sent ? "success" : "outline"}>
                           {n.email_sent ? "Sent" : "Queued"}

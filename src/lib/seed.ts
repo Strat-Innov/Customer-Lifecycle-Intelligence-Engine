@@ -109,6 +109,7 @@ export function buildSeedData(): AppData {
           payment_percentage: pct,
           timestamp: date,
           email_sent: true,
+          sent_to: "joseph.bagadiong@filinvestcity.com",
         });
       }
       milestones_reached = [...new Set([...milestones_reached, ...newlyCrossed])];

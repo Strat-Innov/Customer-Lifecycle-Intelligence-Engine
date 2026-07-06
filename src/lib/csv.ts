@@ -57,6 +57,7 @@ export function parseCsv(text: string): CsvRow[] {
 
 export function processCsvRows(rows: CsvRow[], data: AppData): CsvProcessResult {
   const today = new Date().toISOString();
+  const alertEmail = data.settings.alert_email;
   const newNotifications: Notification[] = [];
   const clients = [...data.clients];
   const paymentHistory = [...data.payment_history];
@@ -101,6 +102,7 @@ export function processCsvRows(rows: CsvRow[], data: AppData): CsvProcessResult 
         payment_percentage,
         timestamp: today,
         email_sent: false,
+        sent_to: alertEmail,
       });
     }
   }

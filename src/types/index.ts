@@ -57,6 +57,7 @@ export interface Notification {
   payment_percentage: number;
   timestamp: string;
   email_sent: boolean;
+  sent_to: string;
 }
 
 export interface WeeklyReport {

@@ -1,9 +1,6 @@
 import type { Notification } from "@/types";
 
-export async function sendMilestoneAlerts(
-  notifications: Notification[],
-  to: string
-): Promise<Notification[]> {
+export async function sendMilestoneAlerts(notifications: Notification[]): Promise<Notification[]> {
   return Promise.all(
     notifications.map(async (n) => {
       try {
@@ -11,7 +8,7 @@ export async function sendMilestoneAlerts(
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            to,
+            to: n.sent_to,
             client_name: n.client_name,
             milestone: n.milestone,
             payment_percentage: n.payment_percentage,
