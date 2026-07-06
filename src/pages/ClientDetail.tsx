@@ -58,7 +58,7 @@ export function ClientDetail() {
       <Card>
         <CardHeader>
           <CardTitle>Payment Timeline</CardTitle>
-          <CardDescription>Combined across all contracts · drag the bar below the chart to zoom into a date range</CardDescription>
+          <CardDescription>Combined across all contracts</CardDescription>
         </CardHeader>
         <CardContent>
           <PaymentTimelineChart points={history} height={288} />
