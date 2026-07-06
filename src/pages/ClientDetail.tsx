@@ -12,11 +12,11 @@ import {
 } from "recharts";
 import { useAppData } from "@/context/AppDataContext";
 import { formatCurrency, formatPercent, formatDate, formatDateTime } from "@/lib/utils";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export function ClientDetail() {
   const { id } = useParams<{ id: string }>();
-  const { data } = useAppData();
+  const { data, updateClientDocuments } = useAppData();
   const client = data.clients.find((c) => c.id === id);
 
   if (!client) return <Navigate to="/clients" replace />;
@@ -110,19 +110,29 @@ export function ClientDetail() {
         <Card>
           <CardHeader>
             <CardTitle>Documentation Checklist</CardTitle>
+            <CardDescription>Click a document to mark it submitted or missing</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {client.documentation_status.required.map((doc) => {
               const submitted = client.documentation_status.submitted.includes(doc);
               return (
-                <div key={doc} className="flex items-center gap-2.5 text-sm py-1">
+                <button
+                  key={doc}
+                  onClick={() => {
+                    const next = submitted
+                      ? client.documentation_status.submitted.filter((d) => d !== doc)
+                      : [...client.documentation_status.submitted, doc];
+                    updateClientDocuments(client.id, next);
+                  }}
+                  className="flex items-center gap-2.5 text-sm py-1 w-full text-left hover:bg-accent rounded-md px-1 -mx-1 transition-colors"
+                >
                   {submitted ? (
                     <CheckCircle2 size={16} className="text-success shrink-0" />
                   ) : (
                     <XCircle size={16} className="text-muted-foreground shrink-0" />
                   )}
                   <span className={submitted ? "text-foreground" : "text-muted-foreground"}>{doc}</span>
-                </div>
+                </button>
               );
             })}
           </CardContent>

@@ -14,7 +14,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/clients", label: "Clients", icon: Users },
   { to: "/forecast", label: "Forecast", icon: TrendingUp },
-  { to: "/upload", label: "CSV Upload", icon: UploadCloud },
+  { to: "/upload", label: "Upload Report", icon: UploadCloud },
   { to: "/reports", label: "Weekly Reports", icon: FileBarChart },
   { to: "/notifications", label: "Notifications", icon: Bell },
 ];

@@ -1,14 +1,19 @@
 import type { AppData } from "@/types";
-import { buildSeedData } from "@/lib/seed";
 
 const STORAGE_KEY = "filinvest_milestone_tracker_data_v1";
+
+const EMPTY_DATA: AppData = {
+  clients: [],
+  payment_history: [],
+  notifications: [],
+  settings: { alert_email: "joseph.bagadiong@filinvestcity.com" },
+};
 
 export function loadData(): AppData {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) {
-    const seeded = buildSeedData();
-    saveData(seeded);
-    return seeded;
+    saveData(EMPTY_DATA);
+    return EMPTY_DATA;
   }
   try {
     const parsed = JSON.parse(raw) as AppData;

@@ -10,7 +10,7 @@ export function Upload() {
   const { uploadCsv } = useAppData();
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ rowsProcessed: number; newNotifications: Notification[] } | null>(null);
+  const [result, setResult] = useState<{ customersProcessed: number; newNotifications: Notification[] } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(
@@ -31,9 +31,9 @@ export function Upload() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">CSV Upload</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Upload Sales Report</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Upload the daily client payment and documentation export to refresh milestone data.
+          Upload the daily payment export to refresh milestone data. Documentation status is edited per client.
         </p>
       </div>
 
@@ -57,12 +57,12 @@ export function Upload() {
         <UploadCloud size={32} className="text-primary" />
         <div>
           <p className="text-sm font-medium">Drag & drop your CSV here, or click to browse</p>
-          <p className="text-xs text-muted-foreground mt-1">Expected columns: name, contract_value, payment_to_date, documents_submitted</p>
+          <p className="text-xs text-muted-foreground mt-1">Expects the daily Sales Report export — matched by column header, not position: Customer Name, TCP, Payment Percentage</p>
         </div>
         <input
           ref={inputRef}
           type="file"
-          accept=".csv,text/csv"
+          accept=".csv,.tsv,.txt,.xls,text/csv,text/tab-separated-values,text/plain"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
@@ -91,7 +91,7 @@ export function Upload() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Processed {result.rowsProcessed} row{result.rowsProcessed === 1 ? "" : "s"}. {result.newNotifications.length}{" "}
+              Processed {result.customersProcessed} customer{result.customersProcessed === 1 ? "" : "s"} (contracts combined per customer). {result.newNotifications.length}{" "}
               new milestone{result.newNotifications.length === 1 ? "" : "s"} triggered.
             </p>
 
@@ -122,18 +122,21 @@ export function Upload() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <FileText size={16} className="text-muted-foreground" />
-            <CardTitle>CSV Format Guide</CardTitle>
+            <CardTitle>Sales Report Format Guide</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <pre className="rounded-md bg-secondary/50 border border-border p-4 text-xs font-mono overflow-x-auto">
-{`name,contract_value,payment_to_date,documents_submitted
-Maria Santos,5000000,475000,Valid ID;Proof of Income;Tax Returns`}
+{`Customer Name\tTCP\tPayment Percentage\t...
+LEVINA, JEEJAZ ORBETA\t14799600.00000\t30.13595\t...`}
           </pre>
           <ul className="text-xs text-muted-foreground mt-3 space-y-1 list-disc pl-4">
-            <li>Documents are separated with a semicolon ( ; )</li>
-            <li>payment_percentage is computed automatically as payment_to_date / contract_value</li>
-            <li>Existing clients are matched by name and updated; new names create new client records</li>
+            <li>This is the raw Sales Report export from the source system — tab or comma delimited, any file extension (.xls, .txt, .csv all accepted, since the source system labels its text exports as .xls)</li>
+            <li>Columns are matched by header name, not position — extra or reordered columns are ignored safely</li>
+            <li>Required columns: <strong>Customer Name</strong>, <strong>TCP</strong> (contract value), <strong>Payment Percentage</strong> — this app trusts the percentage given, it does not recompute it</li>
+            <li>Existing clients are matched by name and updated; unmatched names create new client records</li>
+            <li>This upload only affects payment data. Documentation status is managed separately — see each client's detail page</li>
+            <li>Genuine binary Excel files (not text-based exports) are not supported — if this fails, re-export as plain text/CSV from the source system</li>
           </ul>
         </CardContent>
       </Card>
