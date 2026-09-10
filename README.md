@@ -2,6 +2,8 @@
 
 Internal admin tool for the operations team to monitor real estate buyer payments and documentation status, detect milestones, forecast upcoming ones, and log (mocked) email alerts.
 
+**Production:** https://customer-lifecycle-intelligence-engine.vercel.app
+
 > Formerly **Filinvest Milestone Tracker**. Data saved by that release is migrated automatically on first load (see `src/lib/storage.ts`); the alert recipient and its default value are unchanged.
 
 ## Stack
@@ -47,3 +49,5 @@ The email address that (mock) milestone alerts are sent to is configurable in-ap
 ## Deploy
 
 This is a static SPA — deploy the `dist/` output anywhere static, or connect the GitHub repo to Vercel directly. `vercel.json` includes the SPA rewrite rule needed for client-side routes like `/clients/:id`.
+
+Production is deployed on Vercel from the `main` branch: https://customer-lifecycle-intelligence-engine.vercel.app
