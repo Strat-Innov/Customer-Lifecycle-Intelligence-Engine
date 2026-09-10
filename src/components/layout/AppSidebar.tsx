@@ -9,6 +9,7 @@ import {
   Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { APP_LONG_NAME, APP_SHORT_NAME } from "@/lib/branding";
 
 const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -27,8 +28,8 @@ export function AppSidebar() {
           <Building2 size={18} />
         </div>
         <div className="leading-tight">
-          <p className="text-sm font-bold tracking-tight">Filinvest</p>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Milestone Tracker</p>
+          <p className="text-sm font-bold tracking-tight">{APP_SHORT_NAME}</p>
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{APP_LONG_NAME}</p>
         </div>
       </div>
 

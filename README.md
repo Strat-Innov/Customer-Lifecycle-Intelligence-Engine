@@ -1,6 +1,8 @@
-# Filinvest Milestone Tracker
+# CLIE - Customer Lifecycle Intelligence Engine
 
 Internal admin tool for the operations team to monitor real estate buyer payments and documentation status, detect milestones, forecast upcoming ones, and log (mocked) email alerts.
+
+> Formerly **Filinvest Milestone Tracker**. Data saved by that release is migrated automatically on first load (see `src/lib/storage.ts`); the alert recipient and its default value are unchanged.
 
 ## Stack
 

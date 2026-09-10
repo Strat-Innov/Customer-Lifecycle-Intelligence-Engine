@@ -31,7 +31,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Filinvest Milestone Tracker <onboarding@resend.dev>",
+      from: "CLIE - Customer Lifecycle Intelligence Engine <onboarding@resend.dev>",
       to: [to],
       subject: `Milestone reached: ${client_name} — ${milestone}`,
       html: `<p><strong>${client_name}</strong> has reached the <strong>${milestone}</strong> milestone.</p><p>Payment progress: ${payment_percentage.toFixed(2)}%</p>`,
