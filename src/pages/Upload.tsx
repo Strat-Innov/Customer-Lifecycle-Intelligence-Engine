@@ -12,7 +12,7 @@ interface FileError {
 }
 
 export function Upload() {
-  const { data, importFile, removeImport } = useAppData();
+  const { data, importFile, removeImport, displayName } = useAppData();
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState<FileError[]>([]);
   const [results, setResults] = useState<ImportFileResult[]>([]);
@@ -127,7 +127,7 @@ export function Upload() {
                     to={`/clients/${n.client_id}`}
                     className="flex items-center justify-between rounded-md border border-border px-4 py-2.5 text-sm hover:bg-accent transition-colors"
                   >
-                    <span className="font-medium">{n.client_name}</span>
+                    <span className="font-medium">{displayName(n.client_name)}</span>
                     <div className="flex items-center gap-3">
                       <span className={milestoneBadgeClass(n.milestone)}>
                         {n.milestone}

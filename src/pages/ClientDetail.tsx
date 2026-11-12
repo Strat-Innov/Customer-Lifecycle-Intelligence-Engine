@@ -7,7 +7,7 @@ import { PaymentTimelineChart } from "@/components/PaymentTimelineChart";
 
 export function ClientDetail() {
   const { id } = useParams<{ id: string }>();
-  const { data, updateClientDocuments } = useAppData();
+  const { data, updateClientDocuments, displayName } = useAppData();
   const client = data.clients.find((c) => c.id === id);
 
   if (!client) return <Navigate to="/clients" replace />;
@@ -29,7 +29,7 @@ export function ClientDetail() {
       <div className="glass-card p-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{client.name}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{displayName(client.name)}</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Client since {formatDate(client.created_at)}
             </p>

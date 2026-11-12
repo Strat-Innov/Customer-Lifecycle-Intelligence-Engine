@@ -15,7 +15,7 @@ function toCsvField(value: string | number | boolean): string {
 }
 
 export function Reports() {
-  const { data } = useAppData();
+  const { data, displayName } = useAppData();
 
   const weeklyReports: WeeklyReport[] = useMemo(() => {
     const byWeek = new Map<string, WeeklyReport>();
@@ -36,7 +36,7 @@ export function Reports() {
     const header = "client_name,milestone,payment_percentage,timestamp,email_sent";
     const rows = report.milestones.map((n) =>
       [
-        toCsvField(n.client_name),
+        toCsvField(displayName(n.client_name)),
         toCsvField(n.milestone),
         toCsvField(n.payment_percentage.toFixed(2)),
         toCsvField(n.timestamp),
@@ -97,7 +97,7 @@ export function Reports() {
                     <tbody>
                       {report.milestones.map((n) => (
                         <tr key={n.id}>
-                          <td>{n.client_name}</td>
+                          <td>{displayName(n.client_name)}</td>
                           <td>
                             <span className={milestoneBadgeClass(n.milestone)}>
                               {n.milestone}

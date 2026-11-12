@@ -2,6 +2,7 @@ import type { AppData, Client, ImportBaseline, ImportRecord, Notification, Sales
 import { processSalesReportRows } from "@/lib/salesReport";
 import { generateProjectionAlerts } from "@/lib/forecast";
 import { isCreqComplete } from "@/lib/milestones";
+import { assignAliases } from "@/lib/customerAliases";
 
 export interface ApplyImportInput {
   fileName: string;
@@ -43,6 +44,7 @@ export function applyImport(data: AppData, input: ApplyImportInput): ApplyImport
       clients: projection.clients,
       notifications: [...projection.newNotifications, ...result.data.notifications],
       imports: [...data.imports, record],
+      customer_aliases: assignAliases(data.customer_aliases, input.rows.map((r) => r.name)),
     },
     record,
     customersProcessed: result.customersProcessed,

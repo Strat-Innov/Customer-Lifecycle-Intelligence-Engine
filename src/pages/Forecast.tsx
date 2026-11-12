@@ -97,6 +97,8 @@ function ForecastSection({
   emptyText: string;
   renderExtra: (c: Client) => ReactNode;
 }) {
+  const { displayName } = useAppData();
+
   return (
     <Card>
       <CardHeader>
@@ -119,7 +121,7 @@ function ForecastSection({
                 to={`/clients/${c.id}`}
                 className={`flex items-center justify-between rounded-md px-4 py-3 text-sm hover:brightness-125 transition-all ${rowClass}`}
               >
-                <span className="font-medium">{c.name}</span>
+                <span className="font-medium">{displayName(c.name)}</span>
                 {renderExtra(c)}
               </Link>
             ))}

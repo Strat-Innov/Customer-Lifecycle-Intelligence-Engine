@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export function Dashboard() {
-  const { data } = useAppData();
+  const { data, displayName } = useAppData();
   const { clients, notifications } = data;
 
   const totalClients = clients.length;
@@ -102,7 +102,7 @@ export function Dashboard() {
                     <tr key={n.id}>
                       <td>
                         <Link to={`/clients/${n.client_id}`} className="hover:text-primary hover:underline">
-                          {n.client_name}
+                          {displayName(n.client_name)}
                         </Link>
                       </td>
                       <td>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export function Notifications() {
-  const { data, setAlertEmail } = useAppData();
+  const { data, setAlertEmail, displayName } = useAppData();
   const [email, setEmail] = useState(data.settings.alert_email);
   const [saved, setSaved] = useState(false);
 
@@ -79,7 +79,7 @@ export function Notifications() {
                     <tr key={n.id}>
                       <td>
                         <Link to={`/clients/${n.client_id}`} className="hover:text-primary hover:underline">
-                          {n.client_name}
+                          {displayName(n.client_name)}
                         </Link>
                       </td>
                       <td>

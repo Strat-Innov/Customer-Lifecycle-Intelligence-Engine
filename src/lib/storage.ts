@@ -1,5 +1,6 @@
 import type { AppData } from "@/types";
 import { captureBaseline } from "@/lib/imports";
+import { assignAliases } from "@/lib/customerAliases";
 
 /**
  * Persistence key for the current brand (CLIE).
@@ -23,20 +24,25 @@ const EMPTY_DATA: AppData = {
   payment_history: [],
   contract_payment_history: [],
   notifications: [],
-  settings: { alert_email: DEFAULT_ALERT_EMAIL },
+  settings: { alert_email: DEFAULT_ALERT_EMAIL, hide_customer_names: true },
   imports: [],
   baseline: null,
+  customer_aliases: {},
 };
 
 function parseData(raw: string): AppData {
   const parsed = JSON.parse(raw) as AppData;
-  if (!parsed.settings) parsed.settings = { alert_email: DEFAULT_ALERT_EMAIL };
+  if (!parsed.settings) parsed.settings = { alert_email: DEFAULT_ALERT_EMAIL, hide_customer_names: true };
+  // Names are hidden unless someone has explicitly chosen to show them.
+  if (parsed.settings.hide_customer_names === undefined) parsed.settings.hide_customer_names = true;
   // Data from before import tracking: keep what's there as a non-removable baseline.
   if (!parsed.imports) {
     parsed.imports = [];
     parsed.baseline = captureBaseline(parsed);
   }
   if (parsed.baseline === undefined) parsed.baseline = null;
+  // Number existing customers in the order they were first added.
+  parsed.customer_aliases = assignAliases(parsed.customer_aliases ?? {}, parsed.clients.map((c) => c.name));
   return parsed;
 }
 

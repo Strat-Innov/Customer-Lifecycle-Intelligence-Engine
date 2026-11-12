@@ -7,7 +7,10 @@ import {
   FileBarChart,
   Bell,
   Building2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
+import { useAppData } from "@/context/AppDataContext";
 import { cn } from "@/lib/utils";
 import { APP_LONG_NAME, APP_SHORT_NAME } from "@/lib/branding";
 
@@ -21,6 +24,9 @@ const NAV_ITEMS = [
 ];
 
 export function AppSidebar() {
+  const { data, setHideCustomerNames } = useAppData();
+  const hidden = data.settings.hide_customer_names;
+
   return (
     <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border bg-card/60 backdrop-blur-xl">
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-border">
@@ -53,6 +59,33 @@ export function AppSidebar() {
           </NavLink>
         ))}
       </nav>
+
+      <div className="px-3 pb-3">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={hidden}
+          onClick={() => setHideCustomerNames(!hidden)}
+          className="flex w-full items-center gap-3 rounded-md border border-border px-3 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          title={hidden ? "Customer names are shown as Customer 1, Customer 2, ..." : "Real customer names are visible"}
+        >
+          {hidden ? <EyeOff size={14} className="text-primary" /> : <Eye size={14} />}
+          <span className="flex-1">{hidden ? "Customer names hidden" : "Customer names visible"}</span>
+          <span
+            className={cn(
+              "relative h-4 w-7 rounded-full transition-colors",
+              hidden ? "bg-primary" : "bg-secondary"
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all",
+                hidden ? "left-3.5" : "left-0.5"
+              )}
+            />
+          </span>
+        </button>
+      </div>
 
       <div className="border-t border-border px-5 py-4">
         <p className="text-[11px] text-muted-foreground">Operations Team</p>

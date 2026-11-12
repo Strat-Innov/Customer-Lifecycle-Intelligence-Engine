@@ -10,9 +10,10 @@ function emptyData(): AppData {
     payment_history: [],
     contract_payment_history: [],
     notifications: [],
-    settings: { alert_email: "alerts@example.com" },
+    settings: { alert_email: "alerts@example.com", hide_customer_names: true },
     imports: [],
     baseline: null,
+    customer_aliases: {},
   };
 }
 
@@ -189,5 +190,26 @@ describe("removeImport", () => {
 describe("captureBaseline", () => {
   it("returns null when there is no prior data", () => {
     expect(captureBaseline(emptyData())).toBeNull();
+  });
+});
+
+describe("customer aliases", () => {
+  it("numbers customers in import order and leaves imported names unchanged", () => {
+    const data = importAll([
+      { name: "a.xls", rows: [row("DELA CRUZ, JUAN", "C1", 5), row("SANTOS, MARIA", "C2", 3)], at: DAY1 },
+      { name: "b.xls", rows: [row("dela cruz, juan", "C1", 6), row("REYES, ANA", "C3", 2)], at: DAY2 },
+    ]);
+    expect(data.customer_aliases).toEqual({ "dela cruz, juan": 1, "santos, maria": 2, "reyes, ana": 3 });
+    expect(data.clients.map((c) => c.name)).toEqual(["DELA CRUZ, JUAN", "SANTOS, MARIA", "REYES, ANA"]);
+    expect(data.imports[0].rows[0].name).toBe("DELA CRUZ, JUAN");
+  });
+
+  it("keeps numbers after an import is removed", () => {
+    const data = importAll([
+      { name: "a.xls", rows: [row("DELA CRUZ, JUAN", "C1", 5)], at: DAY1 },
+      { name: "b.xls", rows: [row("SANTOS, MARIA", "C2", 3)], at: DAY2 },
+    ]);
+    const after = removeImport(data, data.imports[0].id);
+    expect(after.customer_aliases).toEqual(data.customer_aliases);
   });
 });

@@ -91,6 +91,8 @@ export interface WeeklyReport {
 
 export interface AppSettings {
   alert_email: string;
+  /** When true, customer names are shown as "Customer N" everywhere in the app. */
+  hide_customer_names: boolean;
 }
 
 /** One parsed Sales Report row, as stored on an import so it can be replayed. */
@@ -134,4 +136,6 @@ export interface AppData {
   /** Imported files, oldest first. */
   imports: ImportRecord[];
   baseline: ImportBaseline | null;
+  /** Permanent display number per customer, keyed by lowercased name. See lib/customerAliases. */
+  customer_aliases: Record<string, number>;
 }

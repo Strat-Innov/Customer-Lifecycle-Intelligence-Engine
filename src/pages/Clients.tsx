@@ -8,14 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 export function Clients() {
-  const { data } = useAppData();
+  const { data, displayName } = useAppData();
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return data.clients;
-    return data.clients.filter((c) => c.name.toLowerCase().includes(q));
-  }, [data.clients, query]);
+    // Search what is shown, so hidden names can't be discovered by searching.
+    return data.clients.filter((c) => displayName(c.name).toLowerCase().includes(q));
+  }, [data.clients, query, displayName]);
 
   return (
     <div className="space-y-6">
@@ -53,7 +54,7 @@ export function Clients() {
                 <tr key={c.id}>
                   <td>
                     <Link to={`/clients/${c.id}`} className="font-medium hover:text-primary hover:underline">
-                      {c.name}
+                      {displayName(c.name)}
                     </Link>
                   </td>
                   <td className="font-mono">{formatCurrency(c.contract_value)}</td>

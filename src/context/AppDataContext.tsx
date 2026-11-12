@@ -5,6 +5,7 @@ import { parseSalesReport } from "@/lib/salesReport";
 import { applyImport, removeImport as removeImportFromData } from "@/lib/imports";
 import { buildDocStatus, detectNewMilestones } from "@/lib/milestones";
 import { sendMilestoneAlerts } from "@/lib/email";
+import { aliasLabel } from "@/lib/customerAliases";
 
 export interface ImportFileResult {
   fileName: string;
@@ -19,6 +20,9 @@ interface AppDataContextValue {
   /** Removes an import and rebuilds payment data without it. */
   removeImport: (importId: string) => void;
   setAlertEmail: (email: string) => void;
+  setHideCustomerNames: (hide: boolean) => void;
+  /** The name to show for a customer: "Customer N" while names are hidden, the real name otherwise. */
+  displayName: (name: string) => string;
   updateClientDocuments: (clientId: string, submittedDocs: string[]) => void;
 }
 
@@ -65,6 +69,14 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setData((prev) => ({ ...prev, settings: { ...prev.settings, alert_email: email } }));
   }
 
+  function setHideCustomerNames(hide: boolean) {
+    setData((prev) => ({ ...prev, settings: { ...prev.settings, hide_customer_names: hide } }));
+  }
+
+  function displayName(name: string): string {
+    return data.settings.hide_customer_names ? aliasLabel(data.customer_aliases, name) : name;
+  }
+
   function updateClientDocuments(clientId: string, submittedDocs: string[]) {
     const client = data.clients.find((c) => c.id === clientId);
     if (!client) throw new Error(`Client ${clientId} not found`);
@@ -108,7 +120,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppDataContext.Provider value={{ data, importFile, removeImport, setAlertEmail, updateClientDocuments }}>
+    <AppDataContext.Provider value={{ data, importFile, removeImport, setAlertEmail, setHideCustomerNames, displayName, updateClientDocuments }}>
       {children}
     </AppDataContext.Provider>
   );
