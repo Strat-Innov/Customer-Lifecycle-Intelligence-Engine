@@ -129,7 +129,7 @@ export function Upload() {
         <CardContent>
           <pre className="rounded-md bg-secondary/50 border border-border p-4 text-xs font-mono overflow-x-auto">
 {`Customer Name\tTCP\tPayment Percentage\t...
-LEVINA, JEEJAZ ORBETA\t14799600.00000\t30.13595\t...`}
+DELA CRUZ, JUAN\t14799600.00000\t30.13595\t...`}
           </pre>
           <ul className="text-xs text-muted-foreground mt-3 space-y-1 list-disc pl-4">
             <li>This is the raw Sales Report export from the source system — tab or comma delimited, any file extension (.xls, .txt, .csv all accepted, since the source system labels its text exports as .xls)</li>
