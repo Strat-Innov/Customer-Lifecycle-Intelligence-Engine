@@ -1,14 +1,23 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { AppData, Notification } from "@/types";
 import { loadData, saveData } from "@/lib/storage";
-import { parseSalesReport, processSalesReportRows } from "@/lib/salesReport";
+import { parseSalesReport } from "@/lib/salesReport";
+import { applyImport, removeImport as removeImportFromData } from "@/lib/imports";
 import { buildDocStatus, detectNewMilestones } from "@/lib/milestones";
-import { generateProjectionAlerts } from "@/lib/forecast";
 import { sendMilestoneAlerts } from "@/lib/email";
+
+export interface ImportFileResult {
+  fileName: string;
+  customersProcessed: number;
+  newNotifications: Notification[];
+}
 
 interface AppDataContextValue {
   data: AppData;
-  uploadCsv: (text: string) => { customersProcessed: number; newNotifications: Notification[] };
+  /** Parses and applies a Sales Report, recording it as an import. Throws on invalid files or full storage. */
+  importFile: (fileName: string, text: string) => ImportFileResult;
+  /** Removes an import and rebuilds payment data without it. */
+  removeImport: (importId: string) => void;
   setAlertEmail: (email: string) => void;
   updateClientDocuments: (clientId: string, submittedDocs: string[]) => void;
 }
@@ -17,26 +26,27 @@ const AppDataContext = createContext<AppDataContextValue | null>(null);
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(() => loadData());
+  // Latest data, updated synchronously by importFile so several files imported
+  // back-to-back each build on the previous one rather than a stale render.
+  const dataRef = useRef(data);
+  dataRef.current = data;
 
   useEffect(() => {
     saveData(data);
   }, [data]);
 
-  function uploadCsv(text: string) {
+  function importFile(fileName: string, text: string): ImportFileResult {
     const rows = parseSalesReport(text);
-    const result = processSalesReportRows(rows, data);
+    const result = applyImport(dataRef.current, { fileName, rows });
 
-    const projection = generateProjectionAlerts(result.data);
-    const combinedData: AppData = {
-      ...result.data,
-      clients: projection.clients,
-      notifications: [...projection.newNotifications, ...result.data.notifications],
-    };
-    setData(combinedData);
+    // Save up front so a full browser storage is reported as an import error
+    // instead of failing silently in the persistence effect.
+    saveData(result.data);
+    dataRef.current = result.data;
+    setData(result.data);
 
-    const allNewNotifications = [...result.newNotifications, ...projection.newNotifications];
-    if (allNewNotifications.length > 0) {
-      sendMilestoneAlerts(allNewNotifications).then((sent) => {
+    if (result.newNotifications.length > 0) {
+      sendMilestoneAlerts(result.newNotifications).then((sent) => {
         setData((prev) => ({
           ...prev,
           notifications: prev.notifications.map((n) => sent.find((s) => s.id === n.id) ?? n),
@@ -44,7 +54,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    return { customersProcessed: result.customersProcessed, newNotifications: allNewNotifications };
+    return { fileName, customersProcessed: result.customersProcessed, newNotifications: result.newNotifications };
+  }
+
+  function removeImport(importId: string) {
+    setData((prev) => removeImportFromData(prev, importId));
   }
 
   function setAlertEmail(email: string) {
@@ -94,7 +108,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppDataContext.Provider value={{ data, uploadCsv, setAlertEmail, updateClientDocuments }}>
+    <AppDataContext.Provider value={{ data, importFile, removeImport, setAlertEmail, updateClientDocuments }}>
       {children}
     </AppDataContext.Provider>
   );

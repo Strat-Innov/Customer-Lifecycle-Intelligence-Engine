@@ -1,4 +1,5 @@
 import type { AppData } from "@/types";
+import { captureBaseline } from "@/lib/imports";
 
 /**
  * Persistence key for the current brand (CLIE).
@@ -23,11 +24,19 @@ const EMPTY_DATA: AppData = {
   contract_payment_history: [],
   notifications: [],
   settings: { alert_email: DEFAULT_ALERT_EMAIL },
+  imports: [],
+  baseline: null,
 };
 
 function parseData(raw: string): AppData {
   const parsed = JSON.parse(raw) as AppData;
   if (!parsed.settings) parsed.settings = { alert_email: DEFAULT_ALERT_EMAIL };
+  // Data from before import tracking: keep what's there as a non-removable baseline.
+  if (!parsed.imports) {
+    parsed.imports = [];
+    parsed.baseline = captureBaseline(parsed);
+  }
+  if (parsed.baseline === undefined) parsed.baseline = null;
   return parsed;
 }
 
@@ -60,8 +69,20 @@ export function loadData(): AppData {
   }
 }
 
+export class StorageFullError extends Error {
+  constructor() {
+    super("Browser storage is full. Remove older imported files, then try again.");
+    this.name = "StorageFullError";
+  }
+}
+
 export function saveData(data: AppData): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "QuotaExceededError") throw new StorageFullError();
+    throw e;
+  }
 }
 
 export function resetData(): AppData {

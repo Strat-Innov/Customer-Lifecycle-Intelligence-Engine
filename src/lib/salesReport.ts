@@ -1,16 +1,8 @@
-import type { AppData, Contract, Notification } from "@/types";
+import type { AppData, Client, Contract, Notification, SalesReportRow } from "@/types";
 import { buildDocStatus, detectNewMilestones } from "@/lib/milestones";
 import { aggregateContracts, parseCreditDate } from "@/lib/contracts";
 
-export interface SalesReportRow {
-  name: string;
-  contract_number: string;
-  project_code: string;
-  project_name: string;
-  credit_date: string;
-  contract_value: number;
-  payment_percentage: number;
-}
+export type { SalesReportRow };
 
 const REQUIRED_HEADERS = [
   "Customer Name",
@@ -85,8 +77,26 @@ export interface SalesReportProcessResult {
   newNotifications: Notification[];
 }
 
-export function processSalesReportRows(rows: SalesReportRow[], data: AppData): SalesReportProcessResult {
-  const today = new Date().toISOString();
+export interface ProcessSalesReportOptions {
+  /** Timestamp the rows are dated by. Defaults to now; replays pass the original import time. */
+  now?: string;
+  /** Tags generated notifications with the import they came from. */
+  importId?: string;
+  /**
+   * Clients from a previous state. When a customer is new to `data` but has a
+   * match here (by name), its id and documentation status are
+   * reused, so rebuilding data after removing an import keeps links and
+   * manually managed documents intact.
+   */
+  carryOver?: Client[];
+}
+
+export function processSalesReportRows(
+  rows: SalesReportRow[],
+  data: AppData,
+  options: ProcessSalesReportOptions = {}
+): SalesReportProcessResult {
+  const today = options.now ?? new Date().toISOString();
   const alertEmail = data.settings.alert_email;
   const newNotifications: Notification[] = [];
   const clients = [...data.clients];
@@ -105,7 +115,9 @@ export function processSalesReportRows(rows: SalesReportRow[], data: AppData): S
 
   for (const [, customerRows] of rowsByCustomer) {
     const name = customerRows[0].name;
-    let client = clients.find((c) => c.name.toLowerCase() === name.toLowerCase());
+    const clientIndex = clients.findIndex((c) => c.name.toLowerCase() === name.toLowerCase());
+    let client: Client | undefined = clientIndex === -1 ? undefined : clients[clientIndex];
+    const carried = client ? undefined : options.carryOver?.find((c) => c.name.toLowerCase() === name.toLowerCase());
     const priorMilestones = client ? client.milestones_reached : [];
     const existingContracts: Contract[] = client ? [...client.contracts] : [];
 
@@ -146,18 +158,23 @@ export function processSalesReportRows(rows: SalesReportRow[], data: AppData): S
     }
 
     const aggregate = aggregateContracts(existingContracts);
-    const documentation_status = client ? client.documentation_status : buildDocStatus([]);
+    const documentation_status = client?.documentation_status ?? carried?.documentation_status ?? buildDocStatus([]);
     const newlyCrossed = detectNewMilestones(priorMilestones, aggregate.payment_percentage, documentation_status);
 
+    // Clients are replaced, never mutated, so the caller's `data` stays untouched.
     if (client) {
-      client.contract_value = aggregate.contract_value;
-      client.payment_to_date = aggregate.payment_to_date;
-      client.payment_percentage = aggregate.payment_percentage;
-      client.contracts = existingContracts;
-      client.milestones_reached = [...new Set([...priorMilestones, ...newlyCrossed])];
+      client = {
+        ...client,
+        contract_value: aggregate.contract_value,
+        payment_to_date: aggregate.payment_to_date,
+        payment_percentage: aggregate.payment_percentage,
+        contracts: existingContracts,
+        milestones_reached: [...new Set([...priorMilestones, ...newlyCrossed])],
+      };
+      clients[clientIndex] = client;
     } else {
       client = {
-        id: crypto.randomUUID(),
+        id: carried?.id ?? crypto.randomUUID(),
         name,
         contract_value: aggregate.contract_value,
         payment_to_date: aggregate.payment_to_date,
@@ -184,6 +201,7 @@ export function processSalesReportRows(rows: SalesReportRow[], data: AppData): S
         email_sent: false,
         sent_to: alertEmail,
         kind: "milestone",
+        ...(options.importId ? { import_id: options.importId } : {}),
       });
     }
   }

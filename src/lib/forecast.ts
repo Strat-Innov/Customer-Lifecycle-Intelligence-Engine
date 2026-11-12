@@ -71,7 +71,7 @@ export function isProjectedWithinNextMonth(client: Client, data: AppData): boole
  * time they qualify — using client.projected_10_alert_sent as the guard so
  * re-uploading the same trend data every day doesn't re-notify endlessly.
  */
-export function generateProjectionAlerts(data: AppData): {
+export function generateProjectionAlerts(data: AppData, importId?: string): {
   clients: Client[];
   newNotifications: Notification[];
 } {
@@ -91,6 +91,7 @@ export function generateProjectionAlerts(data: AppData): {
         email_sent: false,
         sent_to: alertEmail,
         kind: "forecast",
+        ...(importId ? { import_id: importId } : {}),
       });
       return { ...client, projected_10_alert_sent: true };
     }

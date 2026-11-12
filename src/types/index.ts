@@ -79,6 +79,8 @@ export interface Notification {
   email_sent: boolean;
   sent_to: string;
   kind: NotificationKind;
+  /** The import that generated this notification; absent for manual (documentation) triggers. */
+  import_id?: string;
 }
 
 export interface WeeklyReport {
@@ -91,10 +93,45 @@ export interface AppSettings {
   alert_email: string;
 }
 
+/** One parsed Sales Report row, as stored on an import so it can be replayed. */
+export interface SalesReportRow {
+  name: string;
+  contract_number: string;
+  project_code: string;
+  project_name: string;
+  credit_date: string;
+  contract_value: number;
+  payment_percentage: number;
+}
+
+/** A Sales Report file that was imported. Its rows are kept so the import can be removed later. */
+export interface ImportRecord {
+  id: string;
+  file_name: string;
+  imported_at: string;
+  row_count: number;
+  customers_processed: number;
+  rows: SalesReportRow[];
+}
+
+/**
+ * Payment data that existed before import tracking was introduced. It has no
+ * source file, so it cannot be removed; imports are replayed on top of it.
+ */
+export interface ImportBaseline {
+  captured_at: string;
+  clients: Client[];
+  payment_history: PaymentHistory[];
+  contract_payment_history: ContractPaymentHistory[];
+}
+
 export interface AppData {
   clients: Client[];
   payment_history: PaymentHistory[];
   contract_payment_history: ContractPaymentHistory[];
   notifications: Notification[];
   settings: AppSettings;
+  /** Imported files, oldest first. */
+  imports: ImportRecord[];
+  baseline: ImportBaseline | null;
 }
